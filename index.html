@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Cálculo IMC</title>
+<style>
+  body {
+    font-family: sans-serif;
+  }
+  .container {
+    width: 300px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+  }
+  label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+  }
+  button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #45a049;
+  }
+  .result {
+    margin-top: 10px;
+  }
+  .clasificacion {
+    margin-top: 20px;
+    border-top: 1px solid #ccc;
+    padding-top: 10px;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h2>Cálculo IMC</h2>
+    <label for="nombre">Nombre:</label>
+    <input type="text" id="nombre" name="nombre"><br><br>
+    <label for="estatura">Estatura en m(Ejemplo: 1.80):</label>
+    <input type="text" id="estatura" name="estatura"><br><br>
+    <label for="peso">Peso en Kg:</label>
+    <input type="text" id="peso" name="peso"><br><br>
+    <button type="button" id="btncalcular" onclick="calculateIMC()">Calcular</button>
+    <button type="button" id="btnmostrarhistorico" onclick="mostrarHistorico()">Mostrar histórico</button><br><br>
+    <label for="valor_imc">Valor IMC:</label>
+    <div class="result" id="result"></div><br>
+    <label for="clasificacion">Clasificación:</label>
+    <div class="clasificacion" id="clasificacion"></div>
+  </div>
+
+  <script>
+    let historico = [];
+
+    function calculateIMC() {
+        const nombre = document.getElementById('nombre').value;
+        const estatura = parseFloat(document.getElementById('estatura').value);
+        const peso = parseFloat(document.getElementById('peso').value);
+
+        if (isNaN(estatura) || isNaN(peso) || estatura <= 0 || peso <= 0) {
+            document.getElementById('result').textContent = 'Por favor ingrese valores válidos.';
+            return;
+        }
+
+        const imc = peso / (estatura * estatura);
+        const resultado = {
+            nombre: nombre,
+            estatura: estatura,
+            peso: peso,
+            imc: imc.toFixed(2)
+        };
+
+        historico.push(resultado);
+        document.getElementById('result').textContent = 'Tu IMC es: ' + imc.toFixed(2);
+
+        // Almacenar el historial en localStorage
+        localStorage.setItem('historicoIMC', JSON.stringify(historico));
+    }
+
+    function mostrarHistorico() {
+        const historicoGuardado = localStorage.getItem('historicoIMC');
+        if (historicoGuardado) {
+            historico = JSON.parse(historicoGuardado);
+            let clasificacionHTML = '<ul>';
+            historico.forEach(item => {
+                clasificacionHTML += `<li>Nombre: ${item.nombre}, IMC: ${item.imc} Kg</li>`;
+            });
+            clasificacionHTML += '</ul>';
+            document.getElementById('clasificacion').innerHTML = clasificacionHTML;
+        } else {
+            document.getElementById('clasificacion').textContent = 'No hay historial disponible.';
+        }
+    }
+
+    // Cargar el historial del localStorage al iniciar la página
+    window.onload = function() {
+        const historicoGuardado = localStorage.getItem('historicoIMC');
+        if (historicoGuardado) {
+            historico = JSON.parse(historicoGuardado);
+        }
+    };
+  </script>
+</body>
+</html>
